@@ -102,7 +102,7 @@ pythonget_byES_f1.py
 
 * getfinallanswer.py 生成融合结果的代码
 * evaluate.py 对结果求precision、recall、F1值
-*finall_top3/finallanswer.txt 结果文件，最终选出的查询路径
+* finall_top3/finallanswer.txt 结果文件，最终选出的查询路径
 * finall_top3/finallanswer_answer.txt 根据查询路径获得的答案
 * 执行
 ``` bash
