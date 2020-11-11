@@ -1,0 +1,7 @@
+当前可用的服务
+    校园网：
+        graph = Graph("http://59.78.194.63:37474", username='neo4j', password='pass')
+    公网：
+        graph = Graph("http://42.192.36.128:6674", username='neo4j', password='pass')
+本地搭建的方式：
+    todo
