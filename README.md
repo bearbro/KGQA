@@ -6,6 +6,7 @@
 * TensorFlow 1.15.2 
 * keras==2.2.4
 * keras_bert==0.84.0
+* elasticsearch
 * py2neo
 
 
