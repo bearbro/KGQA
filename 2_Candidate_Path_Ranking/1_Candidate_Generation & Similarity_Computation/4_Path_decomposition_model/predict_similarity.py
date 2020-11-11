@@ -1,0 +1,651 @@
+import sys
+'''
+先对一跳的句子进行搜索，选取最大的n个，然后再找n个实体相连的候选路径进行计算，选择得分最高的
+'''
+sys.path.insert(0,'/home/aistudio/work/MyExperiment/path_ent_rel')
+sys.path.insert(0,'/home/hbxiong/QA2/path_ent_rel')
+
+from keras_bert import load_trained_model_from_checkpoint
+import keras
+import json
+from py2neo import Graph
+
+
+from some_function_maxbert import transfer_data_pathentrel
+import os
+import numpy as np
+import re
+import tensorflow as tf
+from keras.metrics import binary_accuracy
+import keras.backend as k
+
+gpu_options = tf.GPUOptions(allow_growth=True)
+sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
+from get_query_result_new import get_all_F1
+
+from pprint import pprint
+import os
+import time
+gpu_options = tf.GPUOptions(allow_growth=True)
+sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
+
+tag=time.strftime("%Y-%m-%d-%H-%M-%S",time.localtime())
+print(tag)
+model_tag='ckpt_path_ent_rel_bert_wwm_ext-100,1e-05,8-2020-10-26-15-05-24.hdf5'#room
+
+print(model_tag)
+class Config:
+    # data_path对于交叉路径，固定在训练文件中
+    data_dir = r'./data'
+    train_data_path = os.path.join(data_dir, 'path_data/train_data_sample.json')
+    valid_data_path = os.path.join(data_dir, 'path_data/valid_data_sample.json')
+
+    linking_data_path = '../result_new_linking-no_n_59,r_0.8321,line_right_recall_0.9230,avg_n_2.6919.json'
+
+    # bert_path
+    # bert_path = '../../bert/bert_wwm_ext'  # 百度
+    # bert_path = r'C:\Users\bear\OneDrive\ccks2020-onedrive\ccks2020\bert\tf-bert_wwm_ext'  # room
+    # bert_path = r'../../../ccks/bert/tf-bert_wwm_ext'  # colab
+    bert_path = '/home/hbxiong/ccks/bert/tf-bert_wwm_ext'  # lab
+    bert_config_path = os.path.join(bert_path, 'bert_config.json')
+    bert_ckpt_path = os.path.join(bert_path, 'bert_model.ckpt')
+    bert_vocab_path = os.path.join(bert_path, 'vocab.txt')
+
+
+    result_path = './data/%s-%s'%(model_tag,tag)
+    true_answer_path = os.path.join(result_path, 'true_path_score.json')  # 模型在测试集正确路径上的预测得分
+    ok_result_path = os.path.join(result_path, 'ok_result.txt')  # 保存为txt，使得发生错误时可以在当前问题继续训练
+    pred_result_path = os.path.join(result_path, 'pred_result.txt')
+
+    similarity_ckpt_path = './ckpt/%s'%model_tag  # 模型训练后，模型参数存储路径
+
+    batch_size = 64
+    epoches = 100
+    learning_rate = 1e-5  # 2e-5
+    neg_sample_number = 5
+    max_length = 100  # neg3:64;100
+
+
+config = Config()
+for i in ['./ckpt',config.result_path]:
+    if not os.path.exists(i):
+        os.mkdir(i)
+
+pprint(vars(Config))
+
+
+
+def basic_network():
+    bert_model = load_trained_model_from_checkpoint(config.bert_config_path,
+                                                    config.bert_ckpt_path,
+                                                    seq_len=config.max_length,
+                                                    training=False,
+                                                    trainable=True)
+    # 选择性某些层进行训练
+    # bert_model.summary()
+    # for l in bert_model.layers:
+    #     # print(l)
+    #     l.trainable = True
+    path1 = keras.layers.Input(shape=(config.max_length,))
+    path2 = keras.layers.Input(shape=(config.max_length,))
+    path_bert_out = bert_model([path1, path2])  # 输出维度为(batch_size,max_length,768)
+    # dense=bert_model.get_layer('NSP-Dense')
+    path_bert_out = keras.layers.Lambda(lambda bert_out: bert_out[:, 0])(path_bert_out)
+
+    ent1 = keras.layers.Input(shape=(config.max_length,))
+    ent2 = keras.layers.Input(shape=(config.max_length,))
+    ent_bert_out = bert_model([ent1, ent2])  # 输出维度为(batch_size,max_length,768)
+    # dense=bert_model.get_layer('NSP-Dense')
+    ent_bert_out = keras.layers.Lambda(lambda bert_out: bert_out[:, 0])(ent_bert_out)
+
+    rel1 = keras.layers.Input(shape=(config.max_length,))
+    rel2 = keras.layers.Input(shape=(config.max_length,))
+    rel_bert_out = bert_model([path1, path2])  # 输出维度为(batch_size,max_length,768)
+    # dense=bert_model.get_layer('NSP-Dense')
+    rel_bert_out = keras.layers.Lambda(lambda bert_out: bert_out[:, 0])(rel_bert_out)
+
+
+    #bert_out = keras.layers.Dropout(0.5)(bert_out)
+    com_out=keras.layers.concatenate([path_bert_out,ent_bert_out,rel_bert_out])
+    outputs = keras.layers.Dense(1, activation='sigmoid')(com_out)
+
+    model = keras.models.Model([path1, path2,ent1,ent2,rel1,rel2], outputs)
+    model.compile(
+        optimizer=keras.optimizers.Adam(config.learning_rate),
+        loss=my_loss,
+        metrics=[my_accuracy, monitor_f1]
+    )
+    model.summary()
+    return model
+
+
+def my_accuracy(y_true, y_pred):
+    '''
+
+    :param y_true: ？,2
+    :param y_pred: ?,
+    :return: 1
+    '''
+    # y_true=tf.to_int32(y_true)
+    y_true = k.expand_dims(y_true[:, 0],axis=-1)
+    return binary_accuracy(y_true, y_pred)
+
+
+def my_loss(y_true, y_pred):
+    # y_true = tf.to_int32(y_true)
+    y_true = k.expand_dims(y_true[:, 0])
+    return k.binary_crossentropy(y_true, y_pred)
+
+
+def monitor_f1(y_true, y_pred):
+    '''
+    统计预测为1或真实为1的样本的f1的平均值，弊端batch-wise的，解决：https://www.zhihu.com/question/53294625/answer/362401024
+    :param y_true: ?,2
+    :param y_pred: ?,
+    :return: 1
+    '''
+    f1 = k.expand_dims(y_true[:, 1],axis=-1)
+    y_true = k.expand_dims(y_true[:, 0],axis=-1)
+    # 0.5 划分0，1
+    one = tf.ones_like(y_pred)
+    zero = tf.zeros_like(y_pred)
+    # y_pred = tf.where(y_pred < 0.5, x=zero, y=one)
+    # y= tf.where(y_pred == 1, x=one, y=y_true) #y_true 或 y_pred 为1的地方
+    # 合并上面两个
+    y= tf.where(y_pred > 0.5, x=one, y=y_true)
+    return tf.div(k.sum(tf.multiply(y,f1)),k.sum(y))
+
+
+def get_one_ent_one_hop(graph, ent):
+    '''
+    输入graph实例和实体，返回实体周围一跳的路径
+    :param graph:
+    :param ent:
+    :return:
+    '''
+    # ent->rel->?x
+    cypher1 = "MATCH (ent1:Entity{name:'" + ent + "'})-[rel]->(x) RETURN DISTINCT rel.name"
+    try:
+        relations = graph.run(cypher1).data()
+    except:
+        relations=[]
+        print('one_ent_one_hop cypher1 wrong')
+    sample1 = []
+    for rel in relations:
+        sam = ent + '|||' + rel['rel.name'] + '|||?x'
+        sample1.append(sam)
+        # print(sam)
+
+    # ?x->rel->ent
+    cypher2 = "MATCH (ans)-[rel]->(ent1:Entity{name:'" + ent + "'}) RETURN DISTINCT rel.name"
+    try:
+        relations = graph.run(cypher2).data()
+    except:
+        relations=[]
+        print('one_ent_one_hop cypher2 wrong')
+    sample2 = []
+    for rel in relations:
+        sam = '?x|||' + rel['rel.name'] + '|||' + ent
+        sample2.append(sam)
+        # print(sam)
+    return sample1 + sample2
+
+def _get_next_hop_path_two(graph,path):
+    path=path.replace('\\','\\\\').replace("\'","\\\'")
+    # 输入一跳的路径，返回两跳的路径（包括一跳两个实体）
+    # 若一跳路径答案不为属性，则选择一跳后续的两个实体路径
+    # 若第一跳中关系为类型，则无第二跳
+    path_list=path.split('|||')
+    print('now query path---',path_list)
+    assert len(path_list)==3
+    if path_list[1]=='<类型>' and path_list[2]=='?x':
+        return []
+    cypher='match '
+    sample=[]
+    if  path_list[0]=='?x':
+        cypher1=cypher+"(y)-[rel1:Relation{name:'"+path_list[1]+"'}]->(ent1:Entity{name:'"+path_list[2]+"'}) match (y)-[rel2]->(x) where rel2.name<>'<类型>' and ent1.name<>x.name return distinct rel2.name"
+        # print(cypher1)
+        try:
+            answers = graph.run(cypher1).data()
+        except:
+            answers = []
+            print('next_hop_path_two cypher1 wrong')
+
+        for ans in answers:
+            one_ent=path.replace('?x','?y')+'\t'+'?y|||'+ans['rel2.name']+'|||?x'
+            # print(one_ent)
+            sample.append(one_ent)
+
+        cypher2 = cypher + "(y)-[rel1:Relation{name:'" + path_list[1] + "'}]->(ent1:Entity{name:'" + path_list[2] + "'}) match (x)-[rel2]->(y) return distinct rel2.name"
+        # print(cypher2)
+        try:
+            answers = graph.run(cypher2).data()
+        except:
+            answers = []
+            print('next_hop_path_two cypher2 wrong')
+
+        for ans in answers:
+            one_ent = path.replace('?x', '?y')+ '\t' +'?x|||' + ans['rel2.name'] + '|||?y'
+            # print(one_ent)
+            sample.append(one_ent)
+
+        cypher3=cypher+"(x)-[rel1:Relation{name:'"+path_list[1]+"'}]->(:Entity{name:'"+path_list[2]+"'}) match (y)-[rel2]->(x) return distinct rel2.name,y.name"
+        # print(cypher3)
+
+        try:
+            answers = graph.run(cypher3).data()
+        except:
+            answers = []
+            print('next_hop_path_two cypher3 wrong')
+
+        if len(answers)<1000:
+            for ans in answers:
+                two_ent1=ans['y.name']+'|||'+ans['rel2.name']+'|||?x'+'\t'+path
+                # print(two_ent)
+                sample.append(two_ent1)
+
+        cypher4 = cypher + "(x)-[rel1:Relation{name:'" + path_list[1] + "'}]->(ent1:Entity{name:'" + path_list[2] + "'}) match (x)-[rel2]->(y) where ent1.name<>y.name return distinct rel2.name,y.name"
+        # print(cypher4)
+        if len(answers)<1000:
+            try:
+                answers = graph.run(cypher4).data()
+            except:
+                answers = []
+                print('next_hop_path_two cypher4 wrong')
+
+            for ans in answers:
+                two_ent1= path + '\t' +'?x|||' + ans['rel2.name'] + '|||'+ans['y.name']
+                # print(two_ent)
+                sample.append(two_ent1)
+
+    if path_list[2]=='?x':
+        cypher5=cypher+"(:Entity{name:'"+path_list[0]+"'})-[rel1:Relation{name:'"+path_list[1]+"'}]->(y) match (y)-[rel2]->(x) where rel2.name<>'<类型>' return distinct rel2.name"
+        # print(cypher5)
+        try:
+            answers = graph.run(cypher5).data()
+        except:
+            answers = []
+            print('next_hop_path_two cypher5 wrong')
+        for ans in answers:
+            one_ent=path.replace('?x','?y')+'\t'+'?y|||'+ans['rel2.name']+'|||?x'
+            # print(one_ent)
+            sample.append(one_ent)
+
+        cypher6 = cypher + "(ent1:Entity{name:'" + path_list[0] + "'})-[rel1:Relation{name:'" + path_list[1] + "'}]->(y) match (x)-[rel2]->(y) where ent1.name<>x.name return distinct rel2.name"
+        # print(cypher6)
+        try:
+            answers = graph.run(cypher6).data()
+        except:
+            answers = []
+            print('next_hop_path_two cypher6 wrong')
+
+        for ans in answers:
+            one_ent = path.replace('?x', '?y') + '\t' + '?x|||' + ans['rel2.name'] + '|||?y'
+            # print(one_ent)
+            sample.append(one_ent)
+
+
+        if path_list[1] != '<国籍>' and path_list[1] != '<类型>' and path_list[1]!='<性别>':
+            cypher7=cypher+"(ent1:Entity{name:'" +path_list[0] + "'})-[rel1:Relation{name:'" + path_list[1] + "'}]->(x) match (y)-[rel2]->(x) where ent1.name<>y.name return distinct rel2.name,y.name"
+            # print(cypher7)
+            try:
+                answers = graph.run(cypher7).data()
+            except:
+                answers = []
+                print('next_hop_path_two cypher7 wrong')
+
+            if len(answers) <= 1000:
+                for ans in answers:
+                    two_ent1=path+'\t'+ans['y.name']+'|||'+ans['rel2.name']+'|||?x'
+                    # print(two_ent)
+                    sample.append(two_ent1)
+
+            cypher8 = cypher + "(:Entity{name:'" + path_list[0] + "'})-[rel1:Relation{name:'" + path_list[1] + "'}]->(x) match (x)-[rel2]->(y) return distinct rel2.name,y.name"
+            # print(cypher8)
+            try:
+                answers = graph.run(cypher8).data()
+            except:
+                answers = []
+                print('next_hop_path_two cypher8 wrong')
+
+            if len(answers) <= 1000:
+                for ans in answers:
+                    two_ent = path + '\t' + '?x|||' + ans['rel2.name'] + '|||'+ans['y.name']
+                    # print(two_ent)
+                    sample.append(two_ent)
+            print('two hop path len',len(sample),'---',sample[:5])
+
+    return sample
+
+def _get_next_hop_path_three(graph,path):
+    '''
+    输入任意跳路径，返回构建的多一跳路径（只包含y-rel->x）
+    :param graph:
+    :param path:
+    :return:
+    '''
+    path = path.replace('\\', '\\\\').replace("\'", "\\\'")
+    triple_list=path.split('\t')
+    x_triple=triple_list[-1]
+    x_list=x_triple.split('|||')
+    if x_list[1]=='<类型>' and x_list[2]=='?x':
+        return []
+    cypher=''
+    rel=[]
+    sample=[]
+    # print('path2---',path)
+    for triple in triple_list:
+        triple_cypher='match '
+        item_list=triple.split('|||')
+        if item_list[0].startswith('?'):
+            triple_cypher=triple_cypher+"("+item_list[0].strip('?')+")"
+        else:
+
+            triple_cypher = triple_cypher +"(:Entity{name:'"+item_list[0]+"'})"
+        triple_cypher = triple_cypher + "-[:Relation{name:'" + item_list[1] + "'}]"
+        rel.append(item_list[1])
+        if item_list[2].startswith('?'):
+            triple_cypher = triple_cypher + "->(" + item_list[2].strip('?') + ") "
+        else:
+
+            triple_cypher = triple_cypher + "->(:Entity{name:'" + item_list[2] + "'}) "
+        cypher=cypher+triple_cypher
+
+    # #质包括y-rel->x
+    # if len(re.findall(cypher,'(y)')) > 0:
+    #     cypher1=cypher+'match (x)-[rel]->(a) where y.name<>a.name return distinct rel.name'
+    # else:
+    #     cypher1 = cypher + 'match (x)-[rel]->(a) where '
+    #     for ent_item in ent:
+    #         cypher1+="a.name<>'"+ent_item+"' and "
+    #     cypher1=cypher1[:-4]+'return distinct rel.name'
+
+    cypher1 = cypher + "match (x)-[rel]->(a) where rel.name<>'<类型>' and "
+    for rel_item in rel:
+        cypher1+="rel.name<>'"+rel_item+"' and "
+    cypher1=cypher1[:-4]+'return distinct rel.name'
+    try:
+        answers = graph.run(cypher1).data()
+    except:
+        answers = []
+        print('next_hop_path_two cypher1 wrong')
+
+    print('three hop cypher---',cypher1)
+    for ans in answers:
+        one_ent1_1=path.replace('?x','?y1')+'\t'+'?y1|||'+ans['rel.name']+'|||?x'
+        sample.append(one_ent1_1)
+    print('three hop path---',sample)
+    return sample
+
+def _get_next_hop_path_four(graph,path):
+    '''
+    输入任意跳路径，返回构建的多一跳路径（只包含y-rel->x）
+    :param graph:
+    :param path:
+    :return:
+    '''
+    path = path.replace('\\', '\\\\').replace("\'", "\\\'")
+    triple_list=path.split('\t')
+    x_triple=triple_list[-1]
+    x_list=x_triple.split('|||')
+    if x_list[1]=='<类型>' and x_list[2]=='?x':
+        return []
+    cypher=''
+    rel=[]
+    sample=[]
+    # print('path2---',path)
+    for triple in triple_list:
+        triple_cypher='match '
+        item_list=triple.split('|||')
+        if item_list[0].startswith('?'):
+            triple_cypher=triple_cypher+"("+item_list[0].strip('?')+")"
+        else:
+            triple_cypher = triple_cypher +"(:Entity{name:'"+item_list[0]+"'})"
+        triple_cypher = triple_cypher + "-[:Relation{name:'" + item_list[1] + "'}]"
+        rel.append(item_list[1])
+        if item_list[2].startswith('?'):
+            triple_cypher = triple_cypher + "->(" + item_list[2].strip('?') + ") "
+        else:
+            triple_cypher = triple_cypher + "->(:Entity{name:'" + item_list[2] + "'}) "
+        cypher=cypher+triple_cypher
+
+    # #质包括y-rel->x
+    # if len(re.findall(cypher,'(y1)')) > 0:
+    #     cypher1=cypher+'match (x)-[rel]->(a) where y1.name<>a.name return distinct rel.name'
+    # else:
+    #     cypher1 = cypher + 'match (x)-[rel]->(a) where '
+    #     for ent_item in ent:
+    #         cypher1 += "a.name<>'" + ent_item + "' and "
+    #     cypher1 = cypher1[:-4] + 'return distinct rel.name'
+
+    cypher1 = cypher + "match (x)-[rel]->(a) where rel.name<>'<类型>' and "
+    for rel_item in rel:
+        cypher1+="rel.name<>'"+rel_item+"' and "
+    cypher1 = cypher1[:-4] + 'return distinct rel.name'
+    try:
+        answers = graph.run(cypher1).data()
+    except:
+        answers = []
+        print('next_hop_path_two cypher1 wrong')
+
+    print('four hop cypher---',cypher1)
+    for ans in answers:
+        one_ent1_1=path.replace('?x','?y2')+'\t'+'?y2|||'+ans['rel.name']+'|||?x'
+        sample.append(one_ent1_1)
+    print('four hop path---',sample)
+    return sample
+
+def _get_next_hop_path_(graph,path):
+    '''
+    输入任意跳路径，返回构建的多一跳路径（包含各种情况）
+    :param graph:
+    :param path:
+    :return:
+    '''
+    path = path.replace('\\', '\\\\').replace("\'", "\\\'")
+    triple_list=path.split('\t')
+    x_triple=triple_list[-1]
+    x_list=x_triple.split('|||')
+    if x_list[1]=='<类型>' and x_list[2]=='?x':
+        return []
+    cypher=''
+    ent=[]
+    sample=[]
+    # print('path2---',path)
+    for triple in triple_list:
+        triple_cypher='match '
+        item_list=triple.split('|||')
+        if item_list[0].startswith('?'):
+            triple_cypher=triple_cypher+"("+item_list[0].strip('?')+")"
+        else:
+            ent.append(item_list[0])
+            triple_cypher = triple_cypher +"(:Entity{name:'"+item_list[0]+"'})"
+        triple_cypher = triple_cypher + "-[:Relation{name:'" + item_list[1] + "'}]"
+        if item_list[2].startswith('?'):
+            triple_cypher = triple_cypher + "->(" + item_list[2].strip('?') + ") "
+        else:
+            ent.append(item_list[2])
+            triple_cypher = triple_cypher + "->(:Entity{name:'" + item_list[2] + "'}) "
+        cypher=cypher+triple_cypher
+
+    #第一种格式
+    if len(re.findall(cypher,'(y)')) > 0:
+        cypher1=cypher+'match (x)-[rel]->(a) where y.name<>a.name return distinct rel.name'
+    else:
+        cypher1 = cypher + 'match (x)-[rel]->(a) return distinct rel.name'
+    try:
+        answers = graph.run(cypher1).data()
+    except:
+        answers = []
+        print('next_hop_path_two cypher1 wrong')
+
+    for ans in answers:
+        one_ent1_1=path.replace('?x','?z')+'\t'+'?z|||'+ans['rel.name']+'|||?x'
+        # print(one_ent)
+        sample.append(one_ent1_1)
+        # print(sample[-1])
+    if len(re.findall(cypher,'(y)'))>0:
+        cypher1=cypher+'match (x)-[rel]->(a) where y.name<>a.name return distinct rel.name,a.name'
+    else:
+        cypher1 = cypher + 'match (x)-[rel]->(a) return distinct rel.name,a.name'
+    try:
+        answers = graph.run(cypher1).data()
+    except:
+        answers = []
+        print('next_hop_path_two cypher1 wrong')
+    for ans in answers:
+        two_ent1_2=path+'\t?x|||'+ans['rel.name']+'|||'+ans['a.name']
+        # print(two_ent)
+        sample.append(two_ent1_2)
+        # print(sample[-1])
+
+    #第二种格式
+    if len(re.findall(cypher,'(y)'))>0:
+        cypher2=cypher+'match (a)-[rel]->(x) where y.name<>a.name return distinct rel.name'
+    else:
+        cypher2 = cypher + 'match (a)-[rel]->(x) return distinct rel.name'
+    try:
+        answers = graph.run(cypher2).data()
+    except:
+        answers = []
+        print('next_hop_path_two cypher2 wrong')
+    for ans in answers:
+        one_ent2_1=path.replace('?x','?z')+'\t'+'?x|||'+ans['rel.name']+'|||?z'
+        # print(one_ent)
+        sample.append(one_ent2_1)
+        # print(sample[-1])
+    if len(re.findall(cypher,'(y)'))>0:
+        cypher2=cypher+'match (a)-[rel]->(x) where y.name<>a.name return distinct rel.name,a.name'
+    else:
+        cypher2 = cypher + 'match (a)-[rel]->(x) return distinct rel.name,a.name'
+    try:
+        answers = graph.run(cypher2).data()
+    except:
+        answers = []
+        print('next_hop_path_two cypher2 wrong')
+    for ans in answers:
+        two_ent2_2=path+'\t'+ans['a.name']+'|||'+ans['rel.name']+'|||?x'
+        # print(two_ent)
+        sample.append(two_ent2_2)
+        # print(sample[-1])
+    return sample
+
+
+if __name__=='__main__':
+
+
+    threshold=1#认为当得分大于等于此值时停止往下找
+
+
+    model = basic_network()
+    model.load_weights(config.similarity_ckpt_path)
+
+    # graph = Graph("http://47.114.86.211:57474", username='neo4j', password='pass',timeout=3000)
+    graph = Graph("http://59.78.194.63:37474", username='neo4j', password='pass')
+
+    reader = open(config.linking_data_path, 'r', encoding='utf-8')
+
+    data = json.load(reader)
+    pre_writer=open(config.pred_result_path,'w',encoding='utf-8')
+    ok_writer=open(config.ok_result_path,'w',encoding='utf-8')
+
+    assert len(data)==766
+
+    beamsearch=[10,10,3,2]#top k
+    all_sample=0
+    all_number=0
+    for k in range(len(data)):#k控制对第k个句子进行predict
+        a_sent_data=data[k]
+        print('问题',k,':',a_sent_data['sentence'])
+        if len(a_sent_data['pred_entity'])==0:#若句子中没有链接的实体，则不进行处理
+            continue
+        else:
+            x_sample=[]
+            for candidate in  a_sent_data['pred_entity']:
+                candidate = candidate.replace("'", "\\'")  # 数据库中某些实体存在'
+                x_sample.extend(get_one_ent_one_hop(graph,candidate))#不包括关系为类型，所以可能存在实体有而无路径的情况
+            if len(x_sample)==0:
+                continue
+            x_sent=[a_sent_data['sentence']]*len(x_sample)
+            path_indices1, path_segments1,ent_indices1,ent_segments1,rel_indices1,rel_segments1 = transfer_data_pathentrel(x_sent, x_sample, config.max_length,config.bert_vocab_path)
+
+            sample_number=len(path_indices1)
+            all_sample=all_sample+sample_number
+
+            result = model.predict([path_indices1, path_segments1,ent_indices1,ent_segments1,rel_indices1,rel_segments1],batch_size=config.batch_size)
+            result=result.ravel()#将result展平变为一维数组
+            assert len(x_sample)==len(result)
+
+            top_beamsearch_one_hop=[]#记录前k个候选的一跳路径
+            result_sorted = np.argsort(-np.array(result))
+            if len(result) > beamsearch[0]:
+                result_sorted = result_sorted[0:beamsearch[0]]
+            all_max_score = result[result.argmax(-1)]  # 记录总体的最大得分
+            all_max_path = x_sample[result.argmax(-1)]
+            # print(all_max_score,result_sorted[0],result[result_sorted[0]])
+            assert result[result_sorted[0]] == all_max_score
+            for i in result_sorted:
+                now = {}
+                now['level'] = 1  # level的值表示path涉及的跳数
+                now['score'] = result[i]
+                now['path'] = x_sample[i]
+                top_beamsearch_one_hop.append(now)
+                print('one hop top ', beamsearch[0], ': ', now)
+
+
+            top_beamsearch_two_hop = []  # 记录包含前k个一跳路径，且得分大于其包含的一跳路径的两跳候选路径,最多k
+            if all_max_score < threshold:
+                two_score = []
+                two_sample = []
+                for top in top_beamsearch_one_hop:
+                    max = top['score']
+                    x_sample_next = _get_next_hop_path_two(graph, top['path'])
+                    if len(x_sample_next) == 0:  # 若没有第二跳路径，则看下一个
+                        continue
+
+                    x_sent_next = [a_sent_data['sentence']] * len(x_sample_next)
+                    path_indices2, path_segments2,ent_indices2,ent_segments2,rel_indices2,rel_segments2= transfer_data_pathentrel(x_sent_next, x_sample_next, config.max_length,config.bert_vocab_path)
+
+                    sample_number = len(path_indices2)
+                    all_sample = all_sample + sample_number
+                    result = model.predict([path_indices2, path_segments2,ent_indices2,ent_segments2,rel_indices2,rel_segments2], batch_size=config.batch_size)
+                    result = result.ravel()  # 将result展平变为一维数组
+                    # print('two_hop---',result)
+                    for i in range(len(result)):
+                        if result[i] > max:
+                            two_score.append(result[i])
+                            two_sample.append(x_sample_next[i])
+                            if result[i] > all_max_score:
+                                all_max_score = result[i]
+                                all_max_path = x_sample_next[i]
+
+                next_sorted = np.argsort(-np.array(two_score))
+                if len(next_sorted) > beamsearch[1]:
+                    next_sorted = next_sorted[0:beamsearch[1]]
+                for i in next_sorted:
+                    now = {}
+                    now['level'] = 2
+                    now['score'] = two_score[i]
+                    now['path'] = two_sample[i]
+                    top_beamsearch_two_hop.append(now)
+                    print('two hop top ',str(beamsearch[1]),' :', now)  # 有符合条件加入twohop的path
+                # 在two_hop的基础上向下找，直到没有可以加入的更大的得分
+
+            
+
+            pre_writer.write('q'+str(k)+':' + a_sent_data['sentence'] + '\n')
+            pre_writer.write(str(all_max_score)+'---'+all_max_path + '\n')
+            pre_writer.flush()
+
+            #将符合条件的路径写入ok文件
+            ok_writer.write('q'+str(k)+':' + a_sent_data['sentence'] + '\n')
+            for item in top_beamsearch_one_hop+top_beamsearch_two_hop:
+                ok_writer.write(str(item['score'])+'---'+item['path']+'\n')
+            print('问题', k,',得分',all_max_score,':',a_sent_data['sentence'],'predict over: ',all_max_path)
+            all_number+=1
+
+    pre_writer.close()
+    ok_writer.close()
+
+    print('平均的候选答案数量---',all_sample/all_number)
+    get_all_F1(config.pred_result_path)

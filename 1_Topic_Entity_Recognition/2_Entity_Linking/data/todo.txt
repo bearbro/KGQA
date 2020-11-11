@@ -1,0 +1,6 @@
+download files from https://drive.google.com/drive/folders/1LPGsIVNDUXU32ofARhjEQoGbDiyH4GUZ?usp=sharing
+
+men2ent_dict.json
+
+
+men2pro_dict.json
