@@ -14,14 +14,13 @@
 ## 文件结构&运行方式
 * 运行代码需修改Bert等相关文件的路径
 * 论文中结果对应的模型参数文件可从[该处](https://drive.google.com/drive/folders/1LPGsIVNDUXU32ofARhjEQoGbDiyH4GUZ?usp=sharing)下载
-* 部分目录下存在zip压缩包,请在其所在路径下解压后使用
+* 部分目录下存在zip压缩包，请在其所在路径下解压后使用
 
 ![790e72f5-7e77-429d-a3a6-8399f3c73ff2.png](KGQA_files/790e72f5-7e77-429d-a3a6-8399f3c73ff2.png)
 ### Topic Entity Recognition
 
 ##### Sequence Labeling
 * ckpt保存模型参数的文件夹
-训练好的模型参数可以从xxxx下载
 * ckpt_result保存预测结果的文件夹
 * data 数据文件夹
 * 训练
