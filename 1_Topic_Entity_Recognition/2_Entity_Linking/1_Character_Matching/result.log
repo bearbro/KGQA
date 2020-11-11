@@ -1,0 +1,4 @@
+60,5e-05,1e-05,16,True,64,True,True,False,tf-bert_wwm_ext,BIO,DT,sig_acc_modify_bert_biDT_mask_crf_model(0.8444,0.8408,0.9510).txt
+ner:	R:0.8494	P:0.8444	F1:0.8392
+entity_linking:	no_n:55	R:0.8522	line_right_r:0.9282	avg_n:6.6319
+tag:60,5e-05,1e-05,16,True,64,True,True,False,tf-bert_wwm_ext,BIO,DT,sig_acc_modify_bert_biDT_mask_crf_model(0.8444,0.8408,0.9510)_ner(0.8494,0.8444,0.8392)entity_linking:	no_n:55	R:0.8522	line_right_r:0.9282	avg_n:6.6319

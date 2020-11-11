@@ -1,0 +1,212 @@
+bio_ner_valid.txt
+bio_ner_valid.txt
+bio_ner_valid.txt
+ner:	R:1.0000	P:0.9948	F1:0.9948
+bio_ner_test.txt
+ner:	R:1.0000	P:1.0000	F1:1.0000
+entity_linking:	no_n:33	R:0.9208\line_right_r:0.9569	avg_n:6.6580
+bio_ner_test_ner(1.0000,1.0000,1.0000)entity_linking:	no_n:33	R:0.9208	line_right_r:0.9569	avg_n:6.6580
+bio_ner_test.txt
+ner:	R:1.0000	P:1.0000	F1:1.0000
+entity_linking:	no_n:33	R:0.9208\line_right_r:0.9569	avg_n:6.6580
+bio_ner_test_ner(1.0000,1.0000,1.0000)entity_linking:	no_n:33	R:0.9208	line_right_r:0.9569	avg_n:6.6580
+bio_ner_test.txt
+ner:	R:1.0000	P:1.0000	F1:1.0000
+entity_linking:	no_n:33	R:0.9208\line_right_r:0.9569	avg_n:6.6580
+bio_ner_test_ner(1.0000,1.0000,1.0000)entity_linking:	no_n:33	R:0.9208	line_right_r:0.9569	avg_n:6.6580
+bio_ner_test.txt
+ner:	R:1.0000	P:1.0000	F1:1.0000
+entity_linking:	no_n:33	R:0.9208\line_right_r:0.9569	avg_n:6.6580
+bio_ner_test_ner(1.0000,1.0000,1.0000)entity_linking:	no_n:33	R:0.9208	line_right_r:0.9569	avg_n:6.6580
+bio_ner_test.txt
+ner:	R:1.0000	P:1.0000	F1:1.0000
+entity_linking:	no_n:33	R:0.9208\line_right_r:0.9569	avg_n:6.6580
+bio_ner_test_ner(1.0000,1.0000,1.0000)entity_linking:	no_n:33	R:0.9208	line_right_r:0.9569	avg_n:6.6580
+bio_ner_test.txt
+ner:	R:1.0000	P:1.0000	F1:1.0000
+entity_linking:	no_n:33	R:0.9208\line_right_r:0.9569	avg_n:6.6580
+bio_ner_test_ner(1.0000,1.0000,1.0000)entity_linking:	no_n:33	R:0.9208	line_right_r:0.9569	avg_n:6.6580
+bio_ner_test.txt
+ner:	R:1.0000	P:1.0000	F1:1.0000
+entity_linking:	no_n:33	R:0.9208\line_right_r:0.9569	avg_n:6.6580
+bio_ner_test_ner(1.0000,1.0000,1.0000)entity_linking:	no_n:33	R:0.9208	line_right_r:0.9569	avg_n:6.6580
+bio_ner_test.txt
+ner:	R:1.0000	P:1.0000	F1:1.0000
+entity_linking:	no_n:33	R:0.9208\line_right_r:0.9569	avg_n:6.6580
+bio_ner_test_ner(1.0000,1.0000,1.0000)entity_linking:	no_n:33	R:0.9208	line_right_r:0.9569	avg_n:6.6580
+bio_ner_test.txt
+ner:	R:1.0000	P:1.0000	F1:1.0000
+entity_linking:	no_n:33	R:0.9208\line_right_r:0.9569	avg_n:6.6580
+bio_ner_test_ner(1.0000,1.0000,1.0000)entity_linking:	no_n:33	R:0.9208	line_right_r:0.9569	avg_n:6.6580
+bio_ner_train.txt
+ner:	R:1.0000	P:0.9935	F1:0.9935
+bio_ner_test.txt
+ner:	R:1.0000	P:1.0000	F1:1.0000
+entity_linking:	no_n:33	R:0.9208\line_right_r:0.9569	avg_n:6.6580
+bio_ner_test_ner(1.0000,1.0000,1.0000)entity_linking:	no_n:33	R:0.9208	line_right_r:0.9569	avg_n:6.6580
+bio_ner_train.txt
+ner:	R:1.0000	P:0.9935	F1:0.9935
+bio_ner_test.txt
+ner:	R:1.0000	P:1.0000	F1:1.0000
+entity_linking:	no_n:33	R:0.9208\line_right_r:0.9569	avg_n:6.6580
+bio_ner_test_ner(1.0000,1.0000,1.0000)entity_linking:	no_n:33	R:0.9208	line_right_r:0.9569	avg_n:6.6580
+bio_ner_test.txt
+ner:	R:1.0000	P:1.0000	F1:1.0000
+entity_linking:	no_n:33	R:0.9208\line_right_r:0.9569	avg_n:6.6580
+bio_ner_test_ner(1.0000,1.0000,1.0000)entity_linking:	no_n:33	R:0.9208	line_right_r:0.9569	avg_n:6.6580
+bio_ner_test.txt
+ner:	R:1.0000	P:1.0000	F1:1.0000
+entity_linking:	no_n:33	R:0.9208\line_right_r:0.9569	avg_n:6.6580
+entity_linking:	no_n:33	R:0.9208	line_right_r:0.9569	avg_n:6.6580
+bio_ner_test.txt
+ner:	R:1.0000	P:1.0000	F1:1.0000
+entity_linking:	no_n:33	R:0.9208\line_right_r:0.9569	avg_n:6.6580
+bio_ner_test.txtentity_linking:	no_n:33	R:0.9208	line_right_r:0.9569	avg_n:6.6580
+bio_ner_test.txt
+ner:	R:1.0000	P:1.0000	F1:1.0000
+entity_linking:	no_n:33	R:0.9208\line_right_r:0.9569	avg_n:6.6580
+bio_ner_test.txt33	0.9208	0.9569	6.6580
+bio_ner_test.txt
+ner:	R:1.0000	P:1.0000	F1:1.0000
+bio_ner_test.txt
+ner:	R:1.0000	P:1.0000	F1:1.0000
+entity_linking:	no_n:33	R:0.9208\line_right_r:0.9569	avg_n:6.6580
+bio_ner_test_ner(1.0000,1.0000,1.0000)entity_linking:	no_n:33	R:0.9208	line_right_r:0.9569	avg_n:6.6580
+bio_ner_train.txt
+ner:	R:1.0000	P:0.9935	F1:0.9935
+bio_ner_test.txt
+ner:	R:1.0000	P:1.0000	F1:1.0000
+entity_linking:	no_n:33	R:0.9208\line_right_r:0.9569	avg_n:6.6580
+bio_ner_test_ner(1.0000,1.0000,1.0000)entity_linking:	no_n:33	R:0.9208	line_right_r:0.9569	avg_n:6.6580
+bio_ner_train.txt
+ner:	R:1.0000	P:0.9935	F1:0.9935
+bio_ner_test.txt
+ner:	R:1.0000	P:1.0000	F1:1.0000
+entity_linking:	no_n:33	R:0.9208\line_right_r:0.9569	avg_n:6.6580
+bio_ner_test_ner(1.0000,1.0000,1.0000)entity_linking:	no_n:33	R:0.9208	line_right_r:0.9569	avg_n:6.6580
+bio_ner_train.txt
+ner:	R:1.0000	P:0.9935	F1:0.9935
+bio_ner_test.txt
+ner:	R:1.0000	P:1.0000	F1:1.0000
+entity_linking:	no_n:33	R:0.9208\line_right_r:0.9569	avg_n:6.6580
+bio_ner_test_ner(1.0000,1.0000,1.0000)entity_linking:	no_n:33	R:0.9208	line_right_r:0.9569	avg_n:6.6580
+bio_ner_train.txt
+ner:	R:1.0000	P:0.9935	F1:0.9935
+bio_ner_test.txt
+ner:	R:1.0000	P:1.0000	F1:1.0000
+entity_linking:	no_n:33	R:0.9208\line_right_r:0.9569	avg_n:6.6580
+bio_ner_test_ner(1.0000,1.0000,1.0000)entity_linking:	no_n:33	R:0.9208	line_right_r:0.9569	avg_n:6.6580
+bio_ner_test.txt
+ner:	R:1.0000	P:1.0000	F1:1.0000
+entity_linking:	no_n:33	R:0.9208\line_right_r:0.9569	avg_n:6.6580
+bio_ner_test_ner(1.0000,1.0000,1.0000)entity_linking:	no_n:33	R:0.9208	line_right_r:0.9569	avg_n:6.6580
+bio_ner_train.txt
+ner:	R:0.9998	P:0.9880	F1:0.9880
+bio_ner_test.txt
+ner:	R:1.0000	P:1.0000	F1:1.0000
+entity_linking:	no_n:33	R:0.9208\line_right_r:0.9569	avg_n:6.6580
+bio_ner_test_ner(1.0000,1.0000,1.0000)entity_linking:	no_n:33	R:0.9208	line_right_r:0.9569	avg_n:6.6580
+bio_ner_train.txt
+ner:	R:0.9998	P:0.9880	F1:0.9880
+bio_ner_test.txt
+ner:	R:1.0000	P:1.0000	F1:1.0000
+entity_linking:	no_n:33	R:0.9208\line_right_r:0.9569	avg_n:6.6580
+bio_ner_test_ner(1.0000,1.0000,1.0000)entity_linking:	no_n:33	R:0.9208	line_right_r:0.9569	avg_n:6.6580
+bio_ner_test.txt
+ner:	R:1.0000	P:1.0000	F1:1.0000
+entity_linking:	no_n:33	R:0.9208\line_right_r:0.9569	avg_n:6.6580
+bio_ner_test_ner(1.0000,1.0000,1.0000)entity_linking:	no_n:33	R:0.9208	line_right_r:0.9569	avg_n:6.6580
+bio_ner_test.txt
+ner:	R:1.0000	P:1.0000	F1:1.0000
+entity_linking:	no_n:33	R:0.9208\line_right_r:0.9569	avg_n:6.6580
+bio_ner_test_ner(1.0000,1.0000,1.0000)entity_linking:	no_n:33	R:0.9208	line_right_r:0.9569	avg_n:6.6580
+bio_ner_test.txt
+ner:	R:1.0000	P:1.0000	F1:1.0000
+entity_linking:	no_n:33	R:0.9208\line_right_r:0.9569	avg_n:6.6580
+bio_ner_test_ner(1.0000,1.0000,1.0000)entity_linking:	no_n:33	R:0.9208	line_right_r:0.9569	avg_n:6.6580
+bio_ner_train.txt
+ner:	R:0.9998	P:0.9880	F1:0.9880
+bio_ner_test.txt
+ner:	R:1.0000	P:1.0000	F1:1.0000
+entity_linking:	no_n:33	R:0.9208\line_right_r:0.9569	avg_n:6.6580
+bio_ner_test_ner(1.0000,1.0000,1.0000)entity_linking:	no_n:33	R:0.9208	line_right_r:0.9569	avg_n:6.6580
+bio_ner_test.txt
+ner:	R:1.0000	P:1.0000	F1:1.0000
+entity_linking:	no_n:33	R:0.9208\line_right_r:0.9569	avg_n:6.6580
+bio_ner_test_ner(1.0000,1.0000,1.0000)entity_linking:	no_n:33	R:0.9208	line_right_r:0.9569	avg_n:6.6580
+bio_ner_test.txt
+ner:	R:1.0000	P:1.0000	F1:1.0000
+entity_linking:	no_n:33	R:0.9208\line_right_r:0.9569	avg_n:6.6580
+bio_ner_test_ner(1.0000,1.0000,1.0000)entity_linking:	no_n:33	R:0.9208	line_right_r:0.9569	avg_n:6.6580
+bio_ner_train.txt
+ner:	R:0.9998	P:0.9880	F1:0.9880
+bio_ner_test.txt
+ner:	R:1.0000	P:1.0000	F1:1.0000
+entity_linking:	no_n:33	R:0.9208\line_right_r:0.9569	avg_n:6.6580
+bio_ner_test_ner(1.0000,1.0000,1.0000)entity_linking:	no_n:33	R:0.9208	line_right_r:0.9569	avg_n:6.6580
+bio_ner_train.txt
+ner:	R:0.9998	P:0.9880	F1:0.9880
+bio_ner_test.txt
+ner:	R:1.0000	P:1.0000	F1:1.0000
+entity_linking:	no_n:33	R:0.9208\line_right_r:0.9569	avg_n:6.6580
+bio_ner_test_ner(1.0000,1.0000,1.0000)entity_linking:	no_n:33	R:0.9208	line_right_r:0.9569	avg_n:6.6580
+bio_ner_test.txt
+ner:	R:1.0000	P:1.0000	F1:1.0000
+entity_linking:	no_n:33	R:0.9208\line_right_r:0.9569	avg_n:6.6580
+bio_ner_test_ner(1.0000,1.0000,1.0000)entity_linking:	no_n:33	R:0.9208	line_right_r:0.9569	avg_n:6.6580
+bio_ner_test.txt
+ner:	R:1.0000	P:1.0000	F1:1.0000
+entity_linking:	no_n:33	R:0.9208\line_right_r:0.9569	avg_n:6.6580
+bio_ner_test_ner(1.0000,1.0000,1.0000)entity_linking:	no_n:33	R:0.9208	line_right_r:0.9569	avg_n:6.6580
+bio_ner_test.txt
+ner:	R:1.0000	P:1.0000	F1:1.0000
+entity_linking:	no_n:33	R:0.9208\line_right_r:0.9569	avg_n:6.6580
+bio_ner_test_ner(1.0000,1.0000,1.0000)entity_linking:	no_n:33	R:0.9208	line_right_r:0.9569	avg_n:6.6580
+bio_ner_train.txt
+ner:	R:0.9998	P:0.9880	F1:0.9880
+entity_linking:	no_n:2298	R:0.0000\line_right_r:0.0000	avg_n:0.0000
+bio_ner_train_ner(0.9998,0.9880,0.9880)entity_linking:	no_n:2298	R:0.0000	line_right_r:0.0000	avg_n:0.0000
+bio_ner_test.txt
+ner:	R:1.0000	P:1.0000	F1:1.0000
+entity_linking:	no_n:33	R:0.9208\line_right_r:0.9569	avg_n:6.6580
+bio_ner_test_ner(1.0000,1.0000,1.0000)entity_linking:	no_n:33	R:0.9208	line_right_r:0.9569	avg_n:6.6580
+bio_ner_train.txt
+ner:	R:0.9998	P:0.9880	F1:0.9880
+entity_linking:	no_n:239	R:0.8556\line_right_r:0.8960	avg_n:7.9752
+bio_ner_train_ner(0.9998,0.9880,0.9880)entity_linking:	no_n:239	R:0.8556	line_right_r:0.8960	avg_n:7.9752
+bio_ner_test.txt
+ner:	R:1.0000	P:1.0000	F1:1.0000
+entity_linking:	no_n:33	R:0.9208\line_right_r:0.9569	avg_n:6.6580
+bio_ner_test_ner(1.0000,1.0000,1.0000)entity_linking:	no_n:33	R:0.9208	line_right_r:0.9569	avg_n:6.6580
+bio_ner_train.txt
+ner:	R:0.9998	P:0.9880	F1:0.9880
+entity_linking:	no_n:239	R:0.8556\line_right_r:0.8960	avg_n:7.9752
+bio_ner_train_ner(0.9998,0.9880,0.9880)entity_linking:	no_n:239	R:0.8556	line_right_r:0.8960	avg_n:7.9752
+bio_ner_valid.txt
+ner:	R:1.0000	P:0.9948	F1:0.9948
+entity_linking:	no_n:67	R:0.8838\line_right_r:0.9125	avg_n:7.5470
+bio_ner_valid_ner(1.0000,0.9948,0.9948)entity_linking:	no_n:67	R:0.8838	line_right_r:0.9125	avg_n:7.5470
+bio_ner_test.txt
+ner:	R:1.0000	P:1.0000	F1:1.0000
+entity_linking:	no_n:33	R:0.9208\line_right_r:0.9569	avg_n:6.6580
+bio_ner_test_ner(1.0000,1.0000,1.0000)entity_linking:	no_n:33	R:0.9208	line_right_r:0.9569	avg_n:6.6580
+bio_ner_train.txt
+ner:	R:0.9998	P:0.9880	F1:0.9880
+entity_linking:	no_n:239	R:0.8556\line_right_r:0.8960	avg_n:7.9752
+bio_ner_train_ner(0.9998,0.9880,0.9880)entity_linking:	no_n:239	R:0.8556	line_right_r:0.8960	avg_n:7.9752
+bio_ner_valid.txt
+ner:	R:1.0000	P:0.9948	F1:0.9948
+entity_linking:	no_n:67	R:0.8838\line_right_r:0.9125	avg_n:7.5470
+bio_ner_valid_ner(1.0000,0.9948,0.9948)entity_linking:	no_n:67	R:0.8838	line_right_r:0.9125	avg_n:7.5470
+bio_ner_test.txt
+ner:	R:1.0000	P:1.0000	F1:1.0000
+entity_linking:	no_n:33	R:0.9208\line_right_r:0.9569	avg_n:6.6580
+bio_ner_test_ner(1.0000,1.0000,1.0000)entity_linking:	no_n:33	R:0.9208	line_right_r:0.9569	avg_n:6.6580
+bio_ner_train.txt
+ner:	R:0.9998	P:0.9880	F1:0.9880
+entity_linking:	no_n:239	R:0.8556\line_right_r:0.8960	avg_n:7.9752
+bio_ner_train_ner(0.9998,0.9880,0.9880)entity_linking:	no_n:239	R:0.8556	line_right_r:0.8960	avg_n:7.9752
+bio_ner_valid.txt
+ner:	R:1.0000	P:0.9948	F1:0.9948
+entity_linking:	no_n:67	R:0.8838\line_right_r:0.9125	avg_n:7.5470
+bio_ner_valid_ner(1.0000,0.9948,0.9948)entity_linking:	no_n:67	R:0.8838	line_right_r:0.9125	avg_n:7.5470
