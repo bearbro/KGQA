@@ -1,4 +1,4 @@
-# Natural Language Question Answering over KG with Multi-focus Fusion Model
+# Knowledge Graph Question Answering with Semantic Oriented Fusion Model
 ## 工作流程
 
 ![2a98a348-2d33-41f0-97f1-8bc267b06b9c.png](KGQA_files/2a98a348-2d33-41f0-97f1-8bc267b06b9c.png)
