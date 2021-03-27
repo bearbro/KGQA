@@ -1,5 +1,5 @@
 # Knowledge Graph Question Answering with Semantic Oriented Fusion Model
-## 相关论文发表在期刊《Knowledge-Based Systems》：[https://www.sciencedirect.com/science/article/abs/pii/S0950705121002173](https://www.sciencedirect.com/science/article/abs/pii/S0950705121002173)
+
 ## 工作流程
 
 ![2a98a348-2d33-41f0-97f1-8bc267b06b9c.png](KGQA_files/2a98a348-2d33-41f0-97f1-8bc267b06b9c.png)
@@ -112,7 +112,8 @@ python getfinallanswer.py
 ```
 
 
-
+## 更多细节
+论文：[https://www.sciencedirect.com/science/article/abs/pii/S0950705121002173](https://www.sciencedirect.com/science/article/abs/pii/S0950705121002173)
 
 
 
